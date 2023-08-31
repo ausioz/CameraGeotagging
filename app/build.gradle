@@ -1,0 +1,111 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'kotlin-android'
+    id 'androidx.navigation.safeargs.kotlin'
+}
+
+android {
+    namespace 'com.example.camerageotagging'
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "com.example.camerageotagging"
+        minSdk 24
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+
+    buildFeatures{
+        viewBinding true
+        buildConfig = true
+    }
+}
+
+dependencies {
+    //metadata extractor
+    implementation 'com.drewnoakes:metadata-extractor:2.18.0'
+
+
+    //location service
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+
+
+    // Kotlin lang
+    implementation 'androidx.core:core-ktx:1.10.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1'
+
+    // App compat and UI things
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.viewpager2:viewpager2:1.0.0'
+
+    // Concurrent library for asynchronous coroutines
+    implementation 'androidx.concurrent:concurrent-futures-ktx:1.1.0'
+
+    // Navigation library
+    implementation "androidx.navigation:navigation-fragment-ktx:2.5.0"
+    implementation "androidx.navigation:navigation-ui-ktx:2.5.0"
+
+
+    // CameraX core library
+    implementation "androidx.camera:camera-core:1.2.3"
+
+    // CameraX Camera2 extensions
+    implementation "androidx.camera:camera-camera2:1.2.3"
+
+    // CameraX Lifecycle library
+    implementation "androidx.camera:camera-lifecycle:1.2.3"
+
+    // CameraX View class
+    implementation "androidx.camera:camera-view:1.2.3"
+
+
+    // CameraX Extensions library
+    // implementation "androidx.camera:camera-extensions:$camerax_version"
+
+    //WindowManager
+    implementation 'androidx.window:window:1.0.0-alpha09'
+
+    // Glide
+    implementation 'com.github.bumptech.glide:glide:4.13.2'
+    kapt 'com.github.bumptech.glide:compiler:4.13.2'
+
+    implementation 'com.google.android.material:material:1.5.0'
+
+    // Unit testing
+    testImplementation 'androidx.test.ext:junit:1.1.5'
+    testImplementation 'androidx.test:rules:1.5.0'
+    testImplementation 'androidx.test:runner:1.5.2'
+    testImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    testImplementation 'org.robolectric:robolectric:4.7.1'
+
+    // Instrumented testing
+    androidTestImplementation "androidx.test.ext:junit:1.1.5"
+    androidTestImplementation "androidx.test:core:1.5.0"
+    androidTestImplementation "androidx.test:rules:1.5.0"
+    androidTestImplementation "androidx.test:runner:1.5.2"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
+}
