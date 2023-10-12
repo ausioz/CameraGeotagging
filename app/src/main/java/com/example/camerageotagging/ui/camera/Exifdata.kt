@@ -4,12 +4,10 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class ExifLocation(
+data class Exifdata(
     val fileName:String?,
     val filePath:String?,
     val fileSize:String?,
     val latitude:String?,
-    val latitudeRef:String?,
     val longitude:String?,
-    val longitudeRef:String?
 ) : Parcelable

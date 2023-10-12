@@ -29,23 +29,8 @@ class PhotoDetailFragment : Fragment() {
         _photoDetailBinding?.filenameTV?.text = exifMetadata?.fileName
         _photoDetailBinding?.filePathTV?.text = exifMetadata?.filePath
         _photoDetailBinding?.fileSizeTV?.text = exifMetadata?.fileSize
-        _photoDetailBinding?.latitudeValTV?.text = getLatitude()
-        _photoDetailBinding?.longitudeValTV?.text = getLongitude()
+        _photoDetailBinding?.latitudeValTV?.text = exifMetadata?.latitude
+        _photoDetailBinding?.longitudeValTV?.text = exifMetadata?.longitude
     }
-
-    private fun getLatitude(): String? {
-        return if (exifMetadata?.latitudeRef.equals("S")) {
-            "-" + exifMetadata?.latitude
-        } else exifMetadata?.latitude
-    }
-
-    private fun getLongitude(): String? {
-        return if (exifMetadata?.longitudeRef.equals("W")) ({
-            (360 - (exifMetadata?.longitude?.toDouble() ?: 0.0))
-        }).toString() else {
-            exifMetadata?.longitude
-        }
-    }
-
 
 }

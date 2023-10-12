@@ -1,16 +1,13 @@
 package com.example.camerageotagging.ui.camera
 
-import android.location.Location
 import android.media.MediaScannerConnection
 import android.os.Build
 import android.os.Bundle
 import android.text.format.Formatter
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
-import androidx.core.text.parseAsHtml
 import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -178,52 +175,24 @@ class GalleryFragment internal constructor() : Fragment() {
                     val exif = ExifInterface(mediaStoreFile.file)
                     val fileName = mediaStoreFile.file.name
                     val filePath = mediaStoreFile.file.path
-                    val fileSize = Formatter.formatShortFileSize(requireContext(),mediaStoreFile.file.length())
-
-                    //from exif can be null or empty
-                    val exifLatitude = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)
-                    val exifLatitudeRef = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF)
-                    val exifLongitude = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)
-                    val exifLongitudeRef = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF)
+                    val fileSize = Formatter.formatShortFileSize(
+                        requireContext(), mediaStoreFile.file.length()
+                    )
+                    val latlong = exif.latLong
 
                     //to pass the data to PhotoDetailFragment
-                    val latitude: Double?
-                    val latitudeRef: String?
-                    val longitude: Double?
-                    val longitudeRef: String?
-
-                    if (exifLatitude.isNullOrEmpty() || exifLatitudeRef.isNullOrEmpty() || exifLongitude.isNullOrEmpty() || exifLongitudeRef.isNullOrEmpty()) {
-                        latitude = null
-                        latitudeRef = null
-                        longitude = null
-                        longitudeRef = null
-                    } else {
-                        val latitudeX = exifLatitude.split(",", "/10000000", "/1").toMutableList()
-                        latitudeX.removeIf { it == "" }
-                        Log.d("asd", latitudeX.toString())
-
-                        val longitudeX = exifLongitude.split(",", "/10000000", "/1").toMutableList()
-                        longitudeX.removeIf { it == "" }
-
-                        latitude =
-                            (latitudeX[0].toDouble()) + (latitudeX[1].toDouble() / 60) + (latitudeX[2].toDouble() / 10000000 / 3600)
-                        latitudeRef = exifLatitudeRef
-                        longitude =
-                            (longitudeX[0].toDouble()) + (longitudeX[1].toDouble() / 60) + (longitudeX[2].toDouble() / 10000000 / 3600)
-                        longitudeRef = exifLongitudeRef
-                    }
+                    val latitude: Double? = latlong?.get(0)
+                    val longitude: Double? = latlong?.get(1)
 
                     Navigation.findNavController(requireActivity(), R.id.fragment_container)
                         .navigate(
                             GalleryFragmentDirections.actionGalleryFragmentToPhotoDetailFragment(
-                                ExifLocation(
+                                Exifdata(
                                     fileName,
                                     filePath,
                                     fileSize,
                                     latitude.toString(),
-                                    latitudeRef,
                                     longitude.toString(),
-                                    longitudeRef
                                 )
                             )
                         )

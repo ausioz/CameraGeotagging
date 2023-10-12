@@ -19,6 +19,7 @@ import android.app.Service
 import android.content.Intent
 import android.content.res.Configuration
 import android.location.Location
+import android.location.LocationManager
 import android.os.Binder
 import android.os.IBinder
 import android.os.Looper
@@ -87,7 +88,8 @@ class ForegroundOnlyLocationService : Service() {
             //
             // IMPORTANT NOTE: Apps running on Android 8.0 and higher devices (regardless of
             // targetSdkVersion) may receive updates less frequently than this interval when the app
-            // is no longer in the foreground.
+            // is no longer in the foreground           .
+
             interval = TimeUnit.SECONDS.toMillis(10)
 
             // Sets the fastest rate for active location updates. This interval is exact, and your
