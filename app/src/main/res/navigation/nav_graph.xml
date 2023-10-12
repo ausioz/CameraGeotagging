@@ -55,7 +55,7 @@
         tools:layout="@layout/fragment_photo_detail" >
         <argument
             android:name="fileMetadata"
-            app:argType="string[]" />
+            app:argType="com.example.camerageotagging.ui.camera.ExifLocation" />
         <action
             android:id="@+id/action_photoDetailFragment_to_gallery_fragment"
             app:destination="@id/gallery_fragment" />

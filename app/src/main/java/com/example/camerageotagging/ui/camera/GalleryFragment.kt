@@ -1,20 +1,23 @@
 package com.example.camerageotagging.ui.camera
 
+import android.location.Location
 import android.media.MediaScannerConnection
 import android.os.Build
 import android.os.Bundle
+import android.text.format.Formatter
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.core.text.parseAsHtml
+import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.drew.imaging.ImageMetadataReader
-import com.drew.metadata.Metadata
 import com.example.camerageotagging.R
 import com.example.camerageotagging.databinding.FragmentGalleryBinding
 import com.example.camerageotagging.utils.MediaStoreFile
@@ -41,10 +44,8 @@ class GalleryFragment internal constructor() : Fragment() {
 
     /** Adapter class used to present a fragment containing one photo or video as a page */
     inner class MediaPagerAdapter(
-        fm: FragmentManager,
-        private var mediaList: MutableList<MediaStoreFile>
-    ) :
-        FragmentStateAdapter(fm, lifecycle) {
+        fm: FragmentManager, private var mediaList: MutableList<MediaStoreFile>
+    ) : FragmentStateAdapter(fm, lifecycle) {
         override fun getItemCount(): Int = mediaList.size
         override fun createFragment(position: Int): Fragment =
             PhotoFragment.create(mediaList[position])
@@ -69,17 +70,16 @@ class GalleryFragment internal constructor() : Fragment() {
         lifecycleScope.launch {
             // Get images this app has access to from MediaStore
             mediaList = MediaStoreUtils(requireContext()).getImages()
-            (fragmentGalleryBinding.photoViewPager.adapter as MediaPagerAdapter)
-                .setMediaListAndNotify(mediaList)
+            (fragmentGalleryBinding.photoViewPager.adapter as MediaPagerAdapter).setMediaListAndNotify(
+                mediaList
+            )
             hasMediaItems.complete(mediaList.isNotEmpty())
         }
 
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _fragmentGalleryBinding = FragmentGalleryBinding.inflate(inflater, container, false)
         return fragmentGalleryBinding.root
@@ -107,8 +107,7 @@ class GalleryFragment internal constructor() : Fragment() {
 
         // Handle back button press
         fragmentGalleryBinding.backButton.setOnClickListener {
-            Navigation.findNavController(requireActivity(), R.id.fragment_container)
-                .navigateUp()
+            Navigation.findNavController(requireActivity(), R.id.fragment_container).navigateUp()
         }
 
         // Handle share button press
@@ -144,8 +143,7 @@ class GalleryFragment internal constructor() : Fragment() {
                     val mediaFile = mediaStoreFile.file
 
                     AlertDialog.Builder(view.context, android.R.style.Theme_Material_Dialog)
-                        .setTitle("Confirm Delete")
-                        .setMessage("Are you sure?")
+                        .setTitle("Confirm Delete").setMessage("Are you sure?")
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setPositiveButton(android.R.string.ok) { _, _ ->
 
@@ -164,14 +162,11 @@ class GalleryFragment internal constructor() : Fragment() {
                             // If all photos have been deleted, return to camera
                             if (mediaList.isEmpty()) {
                                 Navigation.findNavController(
-                                    requireActivity(),
-                                    R.id.fragment_container
+                                    requireActivity(), R.id.fragment_container
                                 ).navigateUp()
                             }
 
-                        }
-                        .setNegativeButton(android.R.string.cancel, null)
-                        .create().showImmersive()
+                        }.setNegativeButton(android.R.string.cancel, null).create().showImmersive()
                 }
         }
 
@@ -180,18 +175,55 @@ class GalleryFragment internal constructor() : Fragment() {
 
             mediaList.getOrNull(fragmentGalleryBinding.photoViewPager.currentItem)
                 ?.let { mediaStoreFile ->
-                    val metadata: Metadata = ImageMetadataReader.readMetadata(mediaStoreFile.file)
-                    val detailImage : ArrayList<String> = arrayListOf()
+                    val exif = ExifInterface(mediaStoreFile.file)
+                    val fileName = mediaStoreFile.file.name
+                    val filePath = mediaStoreFile.file.path
+                    val fileSize = Formatter.formatShortFileSize(context,mediaStoreFile.file.length())
 
-                    for (directory in metadata.directories) {
-                        for (tag in directory.tags) {
-                            detailImage.add(tag.toString())
-                        }
+                    //from exif can be null or empty
+                    val exifLatitude = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)
+                    val exifLatitudeRef = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF)
+                    val exifLongitude = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)
+                    val exifLongitudeRef = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF)
+
+                    //to pass the data to PhotoDetailFragment
+                    val latitude: Double?
+                    val latitudeRef: String?
+                    val longitude: Double?
+                    val longitudeRef: String?
+
+                    if (exifLatitude.isNullOrEmpty() || exifLatitudeRef.isNullOrEmpty() || exifLongitude.isNullOrEmpty() || exifLongitudeRef.isNullOrEmpty()) {
+                        latitude = null
+                        latitudeRef = null
+                        longitude = null
+                        longitudeRef = null
+                    } else {
+                        val latitudeX = exifLatitude.split(",", "/10000000", "/1").toMutableList()
+                        latitudeX.removeIf { it == "" }
+
+                        val longitudeX = exifLongitude.split(",", "/10000000", "/1").toMutableList()
+                        longitudeX.removeIf { it == "" }
+
+                        latitude =
+                            (latitudeX[0].toDouble()) + (latitudeX[1].toDouble() / 60) + (latitudeX[2].toDouble() / 10000000 / 3600)
+                        latitudeRef = exifLatitudeRef
+                        longitude =
+                            (longitudeX[0].toDouble()) + (longitudeX[1].toDouble() / 60) + (longitudeX[2].toDouble() / 10000000 / 3600)
+                        longitudeRef = exifLongitudeRef
                     }
+
                     Navigation.findNavController(requireActivity(), R.id.fragment_container)
                         .navigate(
                             GalleryFragmentDirections.actionGalleryFragmentToPhotoDetailFragment(
-                                detailImage.toTypedArray()
+                                ExifLocation(
+                                    fileName,
+                                    filePath,
+                                    fileSize,
+                                    latitude.toString(),
+                                    latitudeRef,
+                                    longitude.toString(),
+                                    longitudeRef
+                                )
                             )
                         )
                 }
