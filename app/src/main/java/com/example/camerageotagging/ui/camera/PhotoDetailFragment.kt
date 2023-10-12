@@ -13,7 +13,7 @@ class PhotoDetailFragment : Fragment() {
     private var _photoDetailBinding: FragmentPhotoDetailBinding? = null
     private val photoDetailBinding get() = _photoDetailBinding!!
     private val args: PhotoDetailFragmentArgs by navArgs()
-    private val exifMetadata = args.fileMetadata
+    private val exifMetadata by lazy { args.fileMetadata }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -26,24 +26,24 @@ class PhotoDetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
-        _photoDetailBinding?.filenameTV?.text = exifMetadata.fileName
-        _photoDetailBinding?.filePathTV?.text = exifMetadata.filePath
-        _photoDetailBinding?.fileSizeTV?.text = exifMetadata.fileSize
+        _photoDetailBinding?.filenameTV?.text = exifMetadata?.fileName
+        _photoDetailBinding?.filePathTV?.text = exifMetadata?.filePath
+        _photoDetailBinding?.fileSizeTV?.text = exifMetadata?.fileSize
         _photoDetailBinding?.latitudeValTV?.text = getLatitude()
         _photoDetailBinding?.longitudeValTV?.text = getLongitude()
     }
 
     private fun getLatitude(): String? {
-        return if (exifMetadata.latitudeRef.equals("S")) {
-            "-" + exifMetadata.latitude
-        } else exifMetadata.latitude
+        return if (exifMetadata?.latitudeRef.equals("S")) {
+            "-" + exifMetadata?.latitude
+        } else exifMetadata?.latitude
     }
 
     private fun getLongitude(): String? {
-        return if (exifMetadata.longitudeRef.equals("W")) ({
-            (360 - (exifMetadata.longitude?.toDouble() ?: 0.0))
+        return if (exifMetadata?.longitudeRef.equals("W")) ({
+            (360 - (exifMetadata?.longitude?.toDouble() ?: 0.0))
         }).toString() else {
-            exifMetadata.longitude
+            exifMetadata?.longitude
         }
     }
 

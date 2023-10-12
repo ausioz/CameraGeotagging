@@ -178,7 +178,7 @@ class GalleryFragment internal constructor() : Fragment() {
                     val exif = ExifInterface(mediaStoreFile.file)
                     val fileName = mediaStoreFile.file.name
                     val filePath = mediaStoreFile.file.path
-                    val fileSize = Formatter.formatShortFileSize(context,mediaStoreFile.file.length())
+                    val fileSize = Formatter.formatShortFileSize(requireContext(),mediaStoreFile.file.length())
 
                     //from exif can be null or empty
                     val exifLatitude = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)
@@ -200,6 +200,7 @@ class GalleryFragment internal constructor() : Fragment() {
                     } else {
                         val latitudeX = exifLatitude.split(",", "/10000000", "/1").toMutableList()
                         latitudeX.removeIf { it == "" }
+                        Log.d("asd", latitudeX.toString())
 
                         val longitudeX = exifLongitude.split(",", "/10000000", "/1").toMutableList()
                         longitudeX.removeIf { it == "" }
